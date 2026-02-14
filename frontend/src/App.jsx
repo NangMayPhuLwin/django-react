@@ -4,6 +4,7 @@ import React from 'react';
 // import './App.css'
 import Cookies from "universal-cookie";
 
+// create cookies object to instantiate Cookies class
 const cookies = new Cookies();
 
 class App extends React.Component {
@@ -24,19 +25,19 @@ class App extends React.Component {
 
   // get session method
   getSession = () => {
-    fetch("/api/session", {
+    fetch("/api/session/", {
       credentials: "same-origin",
     })
-    .then((res)=>res.json())
-    .then((data)=>{
+    .then((res) => res.json()) // Parse the response as JSON
+    .then((data) => {
       console.log(data);
-      if (data.isAuthenticated){
+      if (data.isAuthenticated) {
         this.setState({isAuthenticated: true});
       } else {
         this.setState({isAuthenticated: false});
       }
     })
-    .catch((err)=>{
+    .catch((err) => {
       console.log(err);
     });
   }
@@ -44,16 +45,16 @@ class App extends React.Component {
   // get whoami 
   whoami = () => {
     fetch("/api/whoami/", {
-      headers:{
-        "Content-Type":"application/json",
+      headers: {
+        "Content-Type": "application/json",
       },
-      credentials: "same-origin"
+      credentials: "same-origin",
     })
-    .then((res)=>res.json())
-    .then((data)=> {
-      console.log("You're logged in as "+ data.username)
+    .then((res) => res.json())
+    .then((data) => {
+      console.log("You're logged in as "+ data.username);
     })
-    .catch((err)=>{
+    .catch((err) => {
       console.log(err);
     });
   }
@@ -66,10 +67,10 @@ class App extends React.Component {
     this.setState({username: event.target.value});
   }
 
-  isResponseOk(response){
+  isResponseOk(response) {
     if (response.status >= 200 && response.status <= 299) {
       return response.json();
-    }else{
+    } else {
       throw Error(response.statusText);
     }
   }
@@ -91,7 +92,7 @@ class App extends React.Component {
       }),
     })
     .then(this.isResponseOk)
-    .then((data)=>{
+    .then((data) => {
       console.log(data);
       this.setState({
         isAuthenticated: true, 
@@ -100,7 +101,7 @@ class App extends React.Component {
         error: ""
       });
     })
-    .catch((err)=>{
+    .catch((err) => {
       console.log(err);
       this.setState({
         error: "Wrong Username or password"
@@ -114,11 +115,11 @@ class App extends React.Component {
       credentials: "same-origin",
     })
     .then(this.isResponseOk)
-    .then((data)=> {
+    .then((data) => {
       console.log(data);
       this.setState({isAuthenticated: false});
     })
-    .catch((err)=>{
+    .catch((err) => {
       console.log(err);
     });
   };
@@ -138,7 +139,7 @@ render() {
             id="username"
             name="username"
             value={this.state.username}
-            onChange={this.state.handleUserNameChange} />
+            onChange={this.handleUserNameChange} />
           </div>
           <div className="form-group">
             <label htmlFor="username">Password</label>
@@ -148,7 +149,7 @@ render() {
             id="password" 
             name="password" 
             value={this.state.password}
-            onChange={this.state.handlePasswordChange} />
+            onChange={this.handlePasswordChange} />
           <div>
             {this.state.error && 
               <small className="text-danger"> 
