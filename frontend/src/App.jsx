@@ -42,6 +42,7 @@ class App extends React.Component {
     })
       .then(this.isResponseOk)
       .then((data) => {
+        console.log(data);
         const isAuthenticated = data.isAuthenticated ?? data.isauthenticated ?? false;
         this.setState({ isAuthenticated });
       })
@@ -92,7 +93,8 @@ class App extends React.Component {
       }),
     })
       .then(this.isResponseOk)
-      .then(() => {
+      .then((data) => {
+        console.log(data);
         this.setState({
           isAuthenticated: true,
           username: "",
@@ -114,7 +116,8 @@ class App extends React.Component {
       credentials: "same-origin",
     })
       .then(this.isResponseOk)
-      .then(() => {
+      .then((data) => {
+        console.log(data);
         this.setState({ isAuthenticated: false });
       })
       .catch((err) => {
