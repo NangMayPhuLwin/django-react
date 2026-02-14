@@ -1,35 +1,175 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react';
+// import reactLogo from './assets/react.svg'
+// import viteLogo from '/vite.svg'
+// import './App.css'
+import Cookies from "universal-cookie";
 
-function App() {
-  const [count, setCount] = useState(0)
+const cookies = new Cookies();
 
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      username: "",
+      password: "",
+      error: "",
+      isAuthenticated: false,
+    };
+  }
+
+  componentDidMount = () => {
+    this.getSession();
+  }
+
+  // get session method
+  getSession = () => {
+    fetch("/api/session", {
+      credentials: "same-origin",
+    })
+    .then((res)=>res.json())
+    .then((data)=>{
+      console.log(data);
+      if (data.isAuthenticated){
+        this.setState({isAuthenticated: true});
+      } else {
+        this.setState({isAuthenticated: false});
+      }
+    })
+    .catch((err)=>{
+      console.log(err);
+    });
+  }
+
+  // get whoami 
+  whoami = () => {
+    fetch("/api/whoami/", {
+      headers:{
+        "Content-Type":"application/json",
+      },
+      credentials: "same-origin"
+    })
+    .then((res)=>res.json())
+    .then((data)=> {
+      console.log("You're logged in as "+ data.username)
+    })
+    .catch((err)=>{
+      console.log(err);
+    });
+  }
+
+  handlePasswordChange = (event) => {
+    this.setState({password: event.target.value});
+  }
+
+  handleUserNameChange = (event) => {
+    this.setState({username: event.target.value});
+  }
+
+  isResponseOk(response){
+    if (response.status >= 200 && response.status <= 299) {
+      return response.json();
+    }else{
+      throw Error(response.statusText);
+    }
+  }
+
+  // login methods
+  login = (event) => {
+    event.preventDefault();
+
+    fetch("/api/login/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": cookies.get("csrftoken"),
+      },
+      credentials: "same-origin",
+      body: JSON.stringify({
+        username: this.state.username,
+        password: this.state.password
+      }),
+    })
+    .then(this.isResponseOk)
+    .then((data)=>{
+      console.log(data);
+      this.setState({
+        isAuthenticated: true, 
+        username: "",
+        password: "",
+        error: ""
+      });
+    })
+    .catch((err)=>{
+      console.log(err);
+      this.setState({
+        error: "Wrong Username or password"
+      });
+    });
+  }
+
+  // logout method
+  logout = () => {
+    fetch("/api/logout/", {
+      credentials: "same-origin",
+    })
+    .then(this.isResponseOk)
+    .then((data)=> {
+      console.log(data);
+      this.setState({isAuthenticated: false});
+    })
+    .catch((err)=>{
+      console.log(err);
+    });
+  };
+
+render() {
+  if (!this.state.isAuthenticated) {
+    return(
+      <div className="container mt-3">
+        <h1> React Cookie Auth</h1>
+        <h2> Login </h2>
+        <form onSubmit={this.login}>
+          <div className="form-group">
+            <label htmlFor="username">Username</label>
+            <input 
+            type="text" 
+            className="form-control"
+            id="username"
+            name="username"
+            value={this.state.username}
+            onChange={this.state.handleUserNameChange} />
+          </div>
+          <div className="form-group">
+            <label htmlFor="username">Password</label>
+            <input 
+            type="password" 
+            className="form-control"
+            id="password" 
+            name="password" 
+            value={this.state.password}
+            onChange={this.state.handlePasswordChange} />
+          <div>
+            {this.state.error && 
+              <small className="text-danger"> 
+                {this.state.error} 
+              </small>}
+          </div>
+          </div>
+          <button type="submit" className="btn btn-primary"> LOGIN </button>
+        </form>
+      </div>
+    );
+  }
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div className="container mt-3">
+      <h1> React Cookie Auth </h1>
+      <p> You are logged in !</p>
+      <button className="btn btn-primary-mr-2" onClick={this.whoami}>WhoAmI</button>  
+      <button className="btn btn-danger" onClick={this.logout}>LOGOUT</button>  
+    </div>
   )
 }
+}
 
-export default App
+export default App;
