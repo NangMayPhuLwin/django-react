@@ -164,7 +164,7 @@ class App extends React.Component {
       <div className="container mt-3">
         <h1> React Cookie Auth </h1>
         <p>You are logged in!</p>
-        <button className="btn btn-primary-mr-2" onClick={this.whoami}>WhoAmI</button>
+        <button className="btn btn-primary mr-2" onClick={this.whoami}>WhoAmI</button>
         <button className="btn btn-danger" onClick={this.logout}>LOGOUT</button>
       </div>
     );
